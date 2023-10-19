@@ -1,0 +1,7 @@
+content
+__pycache__
+whisper.cpp
+
+.env
+
+audio.wav
