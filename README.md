@@ -9,7 +9,7 @@ AI transcribes meetings, performs speaker separation, and automatically creates 
 
 ```bash
 # clone on github
-git clone https://github.com/emiria/audientify
+git clone https://github.com/emiria-ai/audientify
 cd audientify
 
 # clone whisper.cpp
