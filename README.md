@@ -18,3 +18,9 @@ cd whisper.cpp
 make
 bash ./models/download-ggml-model.sh large
 ```
+
+## How to use
+
+Register a 10-second reference audio in the `reference_audio` folder, and a speaker will be automatically assigned. If no file is placed, the speaker is further clustered as an unknown speaker.
+
+If an unknown speaker is found, there is an option to assign a name in the process.
