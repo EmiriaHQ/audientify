@@ -1,8 +1,6 @@
 import os
 import yt_dlp
 
-SAVE_DIR_ROOT = 'content'
-
 class YouTubeDownloader:
 
     def __init__(self, save_dir_root):
@@ -20,7 +18,14 @@ class YouTubeDownloader:
             }],
             'outtmpl': os.path.join(self.SAVE_DIR_ROOT, '%(id)s', 'audio.%(ext)s'),
         }
-
+    
     def download_audio(self, video_url):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             ydl.download([video_url])
+
+    @staticmethod
+    def is_youtube_url(url):
+        """指定されたURLがYouTubeのURLかどうかを判断する"""
+        if "youtube.com" in url or "youtu.be" in url:
+            return True
+        return False

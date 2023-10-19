@@ -1,11 +1,7 @@
-import soundfile as sf
 import librosa
-from pathlib import Path 
-import os
-import pandas as pd
 import numpy as np
-from notion import get_or_create_today_page_id,patch_transcript
-import subprocess
+import pandas as pd
+from pathlib import Path 
 
 def fill_gap(a, k):
     """
@@ -119,56 +115,3 @@ class VADJob():
         vad_df["id"] = [str(i) for i in range(1, len(vad_df) + 1)]
         vad_df = vad_df[["id", "start_sec", "end_sec"]]
         vad_df.to_csv(out_fp, index=False)
-
-if not os.path.exists("content"):
-    os.makedirs("content")
-
-meeting_file_path = Path("audio.wav")
-content = Path("./content")
-output_meeting_file_path = Path("./content/vad.csv")
-ts = Path("./content/transcript.csv")
-
-VADJob(audio_fp=meeting_file_path,out_fp=output_meeting_file_path)
-
-vad_df = pd.read_csv(output_meeting_file_path)
-
-for _, row in vad_df.iterrows():
-    wav_fp = content / "{}.wav".format(row["id"])
-    
-    # Load audio file with original sample rate
-    y, sr = librosa.load(meeting_file_path, sr=None, mono=False)
-    
-    # Trim the audio file using start and end time in seconds
-    start_sample = int(row["start_sec"] * sr)
-    end_sample = int(row["end_sec"] * sr)
-    y_trimmed = y[start_sample:end_sample]
-    
-    # If the audio is stereo, convert to mono by averaging the channels
-    if y_trimmed.ndim > 1:
-        y_trimmed = np.mean(y_trimmed, axis=0)
-    
-    # Resample to 16000 Hz
-    y_resampled = librosa.resample(y_trimmed, orig_sr=sr, target_sr=16000)
-    
-    whisper_dir = Path("./whisper.cpp")
-    # Save the trimmed and resampled audio as wav file
-    sf.write(wav_fp, y_resampled, 16000)
-
-    bin_fp = whisper_dir / "main"
-    model_fp = whisper_dir / f"models/ggml-large.bin"
-
-
-    subprocess.run([str(bin_fp), "--model", str(model_fp), "--language", "ja", "-f", str(wav_fp), "--output-csv"])
-
-    fp = Path(output_meeting_file_path).parent / "{}.wav.csv".format(row["id"])
-    dfs = []
-    df = pd.read_csv(fp)
-    df["start"] += row["start_sec"] * 1000
-    df["end"] += row["start_sec"] * 1000
-
-    dfs.append(df)
-    out_df = pd.concat(dfs, axis=0).reset_index(drop=True)
-    out_df.to_csv(ts, index=False)
-
-    page_id = get_or_create_today_page_id()
-    response = patch_transcript(page_id,"./content/transcript.csv")
