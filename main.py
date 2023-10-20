@@ -200,6 +200,17 @@ class AudioSplitter:
         ]
         subprocess.run(command)
 
+def load_reference_embeddings() -> List[Tuple[str, np.ndarray]]:
+    """Load embeddings for all audio files in the reference_audio directory."""
+    reference_embeddings = []
+    reference_dir = Path("reference_audio")
+    
+    for audio_file in reference_dir.glob("*.wav"):
+        embedding = reference_audio_embedding(str(audio_file))
+        reference_embeddings.append((audio_file.stem, embedding))
+        
+    return reference_embeddings
+
 def main():
 
     parser = argparse.ArgumentParser(description='Process audio and transcript.')
@@ -280,7 +291,7 @@ def main():
     transcript = pd.read_csv(os.path.join("content", yt_id, 'transcript.csv'))
     embeddings = generate_speaker_embeddings((wav_data), transcript)
 
-    reference_embeddings = []
+    reference_embeddings = load_reference_embeddings()
 
     output_by_segment2, reference_embeddings = format_speaker_output_by_segment2(
         wav_data, embeddings, transcript, reference_embeddings, args.prompt_reference
