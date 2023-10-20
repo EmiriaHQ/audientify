@@ -1,21 +1,27 @@
 import os
 import yt_dlp
+from youtube_transcript_api import YouTubeTranscriptApi
+from typing import List, Tuple
 
 class YouTubeDownloader:
 
     def __init__(self, save_dir_root):
         self.SAVE_DIR_ROOT = save_dir_root
         self.ydl_opts = {
-            'format': 'bestaudio/best',
-            'extractaudio': True,
-            'audioformat': 'wav',
-            'audioquality': '16',
-            'noplaylist': False,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'wav',
-                'preferredquality': '16',
-            }],
+                    'format': 'bestaudio/best',
+                    'extractaudio': True,  # 音声のみをダウンロード
+                    'audioformat': 'wav',  # wav形式で保存
+                    'audioquality': '16',  # 16bit音質
+                    'noplaylist': False,   # プレイリストをダウンロード
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': 'wav',
+                        'preferredquality': '16',
+                    }],
+                    'postprocessor_args': [
+                        '-ar', '16000',
+                        '-ac', '1'
+                    ],
             'outtmpl': os.path.join(self.SAVE_DIR_ROOT, '%(id)s', 'audio.%(ext)s'),
         }
     

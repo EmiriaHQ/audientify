@@ -1,4 +1,5 @@
 content
+reference_audio
 __pycache__
 whisper.cpp
 
